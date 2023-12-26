@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 
 # R波的定位
 ecg_signal = nk.data(dataset="ecg_1000hz")
+print(ecg_signal)
 _, rpeaks = nk.ecg_peaks(ecg_signal, sampling_rate=1000)
 
 # 展示前 5 R-peaks
