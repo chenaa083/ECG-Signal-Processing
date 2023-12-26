@@ -1,37 +1,30 @@
-import glob
-import numpy as np
-import os
+import csv
 import wfdb
-import pickle
+import os
 # 设置数据的基础路径
 DATA = "data"
+'''
+这个文件用来将dat文件转换为csv格式
+'''
 
 
-#  用于读取 .dat 文件中的波形数据并以 NumPy 数组的形式返回
-def extract_wave(idx, len):
-    """
-    读取.dat文件并返回NumPy数组。假定有2个通道。返回的数组是n x 3，其中n是样本数。
-    第一列是样本编号，接下来两列是第一和第二通道的数据。
-    """
-    record_path = os.path.join(DATA, idx)
-    output, metadata = wfdb.rdsamp(record_path)
-    data = np.frombuffer(output.tobytes(), dtype=np.int32)
-    data = data[500:len]
-    data = data.reshape((-1, 2))
-    data = data.astype(np.float64) / (2 ** 32 - 1)
-    return data, metadata
+def get_data(idx):
+    # 读取数据
+    path = os.path.join(DATA, idx)
+    data_row = wfdb.rdrecord(path)
+    data_ecg = data_row.p_signal
+    leads = data_row.sig_name
+    # 创建 CSV
+    filename = f"{idx}.csv"
+    outfile = open(filename, "w")
+    out_csv = csv.writer(outfile)
+    # 写入带有导联名称的 CSV 标题
+    out_csv.writerow(leads)
+    # 将心电图数据写入 CSV
+    for row in data_ecg:
+        out_csv.writerow(row)
 
 
-def save(example,idx):
-    with open(os.path.join(DATA,"{}.pkl".format(idx)),'wb')as fid:
-        pickle.dump(example[1], fid)
-
-
-if __name__ == '__main__':
-    files = glob.glob(os.path.join(DATA, "*.dat"))  # 使用 glob 获取数据路径下所有 .dat 文件的列表
-    # 通过循环，获取每个文件的基本名称，即去除路径和文件扩展名的部分
-    idxs = [os.path.basename(f).split(".")[0] for f in files]
-    for idx in idxs:
-        example = extract_wave(idx)
-        save(example,idx)
-        print("Example {} has extracted ".format(idx))
+if __name__== '__main__':
+    idx = '102'
+    get_data(idx)

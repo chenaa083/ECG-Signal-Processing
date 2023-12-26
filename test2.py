@@ -7,7 +7,7 @@ def plot_wave(idx):
     绘制指定 idx 的波形数据（假设每个样本有两个通道）。
     """
     # 读取数据
-    data, metadata = dd.extract_wave(idx, 600)
+    data, metadata = dd.extract_wave(idx, 800)
 
     # 绘制波形
     plt.figure(figsize=(10, 30))
@@ -37,7 +37,7 @@ def get_data(idx):
     return channel_1
 
 
-idx = "100"
+idx = "103"
 get_data(idx)
 plot_wave(idx)
 
