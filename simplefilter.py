@@ -1,5 +1,4 @@
 import math
-
 import pandas as pd
 import numpy as np
 import scipy.fftpack
@@ -9,7 +8,7 @@ import download_data as dd
 
 # 读入数据
 # 从CSV文件中读取前5000个数据点
-file_number = 104
+file_number = 100
 filename = "{}.csv".format(file_number)
 dd.get_data('{}'.format(file_number))
 dataset = pd.read_csv(filename, nrows=5000)
@@ -31,36 +30,12 @@ T = 1.0/Fs
 
 # 创建时间轴
 x = np.linspace(0.0, sample*T, 5000)
+# 创建频域轴
+xf = np.linspace(0.0,1.0/(2.0*T), 2500)
 
 # 计算信号的离散傅里叶变换结果
 lead1_f = scipy.fftpack.fft(lead1)
 lead2_f = scipy.fftpack.fft(lead2)
-
-# 创建频域轴
-xf = np.linspace(0.0,1.0/(2.0*T), 2500)
-
-# 创建绘制子图
-fig_td1 = plt.figure()
-fig_td1.suptitle('Time domain signals')
-fig_fd2 = plt.figure()
-fig_fd2.suptitle('Frequency domain signals')
-# 设置子图布局
-fig_td1.subplots_adjust(hspace=0.5)  # 设置垂直方向上的子图间距
-fig_fd2.subplots_adjust(hspace=0.5)
-ax1 = fig_td1.add_subplot(211)
-ax1.set_title('Before filtering')
-ax2 = fig_td1.add_subplot(212)
-ax2.set_title('After filtering')
-ax3 = fig_fd2.add_subplot(211)
-ax3.set_title('Before filtering')
-ax4 = fig_fd2.add_subplot(212)
-ax4.set_title('After filtering')
-
-# 绘制原始信号
-ax1.plot(x,lead1[:5000], color='r', linewidth=0.7)
-ax3.plot(xf, 2.0/sample * np.abs(lead1_f[:2500]), color='r', linewidth=0.7, label='raw')
-ax3.set_ylim([0, 0.20])
-ax3.set_xlim([0, 200])
 
 # 设置低通滤波器(50hz)和带阻滤波器(45,50),处理电源线干扰
 a, b = signal.butter(4, 50/(Fs/2), 'low')
@@ -69,19 +44,6 @@ c, d = signal.butter(2, band_filt/(Fs/2), 'bandstop', analog=False)
 
 # 绘制频率响应曲线
 w, h = signal.freqz(a, b, worN=8000)
-# 创建Matplotlib图形
-plt.figure(figsize=(10, 6))
-
-# 绘制频率响应曲线
-plt.plot(w, 20 * np.log10(abs(h)), color='b', linewidth=2, label='Frequency Response')
-
-# 设置图形属性
-plt.title('Digital Filter Frequency Response')
-plt.xlabel('Frequency [radians / sample]')
-plt.ylabel('Amplitude [dB]')
-plt.margins(0, 0.1)
-plt.grid(which='both', axis='both')
-plt.legend()
 
 # 通过滤波器
 tempf = signal.filtfilt(a,b, lead1[:5000])
@@ -115,13 +77,6 @@ y_filt = signal.lfilter(taps, 1.0, tempf)
 # 对滤波后的信号进行FFT
 lead1_ff = scipy.fftpack.fft(y_filt)
 
-# 绘制滤波后的输出
-ax4.plot(xf, 2.0/sample * np.abs(lead1_ff[:2500]), color='g', linewidth=0.7)
-ax4.set_ylim([0, 0.20])  # 设置y轴的范围
-
-# 绘制滤波后的时域信号
-ax2.plot(x, y_filt, color='g', linewidth=0.7)
-ax2.set_ylim([-0.5, 1.0])  # 设置y轴的范围
 # 计算心率
 dataset['filt'] = y_filt
 
@@ -163,15 +118,6 @@ for datapoint in dataset.filt:
 # 根据先前检测到的峰值位置在信号图上标记并绘制峰值
 ybeat = [dataset.filt[x] for x in peaklist]  # 获取所有峰值的y值，用于绘图
 
-fig_hr = plt.figure()
-fig_hr.suptitle('Peak detector')
-ax5 = fig_hr.add_subplot(111)
-ax5.set_title("Detected peaks in signal")
-# ax6.set_xlim(0,2500)
-ax5.plot(dataset.filt, alpha=0.5, color='blue')  # 绘制半透明的心率信号
-ax5.plot(mov_avg, color='green')  # 绘制移动平均线
-ax5.scatter(peaklist, ybeat, color='red')  # 标记检测到的峰值
-
 # 用于计算心率并输出结果
 RR_list = []
 cnt = 0
@@ -181,8 +127,63 @@ while (cnt < (len(peaklist)-1)):
     RR_list.append(ms_dist)  # 添加到列表中
     cnt += 1
 bpm = 60000 / np.mean(RR_list)  # 计算心率（每分钟心跳数）
-print("the dataset is:\n",dataset)
-print("\nAverage Heart Beat is: %.01f\n" % (bpm))  # 四舍五入为1位小数并打印
-print("Numbers of peaks in sample are {0}".format(len(peaklist)))
-plt.show()
+
+if __name__ == '__main__':
+    # 创建绘制子图
+    fig_td1 = plt.figure()
+    fig_td1.suptitle('Time domain signals')
+    fig_fd2 = plt.figure()
+    fig_fd2.suptitle('Frequency domain signals')
+    # 设置子图布局
+    fig_td1.subplots_adjust(hspace=0.5)  # 设置垂直方向上的子图间距
+    fig_fd2.subplots_adjust(hspace=0.5)
+    ax1 = fig_td1.add_subplot(211)
+    ax1.set_title('Before filtering')
+    ax2 = fig_td1.add_subplot(212)
+    ax2.set_title('After filtering')
+    ax3 = fig_fd2.add_subplot(211)
+    ax3.set_title('Before filtering')
+    ax4 = fig_fd2.add_subplot(212)
+    ax4.set_title('After filtering')
+
+    # 绘制原始信号
+    ax1.plot(x,lead1[:5000], color='r', linewidth=0.7)
+    ax3.plot(xf, 2.0/sample * np.abs(lead1_f[:2500]), color='r', linewidth=0.7, label='raw')
+    ax3.set_ylim([0, 0.20])
+    ax3.set_xlim([0, 200])
+
+    # 绘制滤波后的输出
+    ax4.plot(xf, 2.0/sample * np.abs(lead1_ff[:2500]), color='g', linewidth=0.7)
+    ax4.set_ylim([0, 0.20])  # 设置y轴的范围
+    ax4.set_xlim([0, 200])
+    # 绘制滤波后的时域信号
+    ax2.plot(x, y_filt, color='g', linewidth=0.7)
+    ax2.set_ylim([-0.5, 1.0])  # 设置y轴的范围
+
+    fig_hr = plt.figure()
+    fig_hr.suptitle('Peak detector')
+    ax5 = fig_hr.add_subplot(111)
+    ax5.set_title("Detected peaks in signal")
+    # ax6.set_xlim(0,2500)
+    ax5.plot(dataset.filt, alpha=0.5, color='blue')  # 绘制半透明的心率信号
+    ax5.plot(mov_avg, color='green')  # 绘制移动平均线
+    ax5.scatter(peaklist, ybeat, color='red')  # 标记检测到的峰值
+
+    # 创建Matplotlib图形
+    plt.figure(figsize=(10, 6))
+    # 绘制频率响应曲线
+    plt.plot(w, 20 * np.log10(abs(h)), color='b', linewidth=2, label='Frequency Response')
+    # 设置图形属性
+    plt.title('Digital Filter Frequency Response')
+    plt.xlabel('Frequency [radians / sample]')
+    plt.ylabel('Amplitude [dB]')
+    plt.margins(0, 0.1)
+    plt.grid(which='both', axis='both')
+    plt.legend()
+
+    print("the dataset is:\n",dataset)
+    print("\nAverage Heart Beat is: %.01f\n" % (bpm))  # 四舍五入为1位小数并打印
+    print("Numbers of peaks in sample are {0}".format(len(peaklist)))
+
+    plt.show()
 
