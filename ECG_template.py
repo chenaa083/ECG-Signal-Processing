@@ -67,7 +67,7 @@ ripple_db = 60.0
 O, beta = signal.kaiserord(ripple_db, width)
 # The cutoff frequency of the filter.
 cutoff_hz = 4.0
-                                                                ###Use firwin with a Kaiser window to create a lowpass FIR filter.###
+###Use firwin with a Kaiser window to create a lowpass FIR filter.###
 taps = signal.firwin(O, cutoff_hz/nyq_rate, window=('kaiser', beta), pass_zero=False)
 # Use lfilter to filter x with the FIR filter.
 y_filt = signal.lfilter(taps, 1.0, tempf)
