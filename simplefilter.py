@@ -110,6 +110,14 @@ ax4.set_ylim([0, 0.2])  # 设置y轴的范围
 # 绘制滤波后的时域信号
 ax2.plot(x, y_filt, color='g', linewidth=0.7)
 
-plt.show()
+# 计算心率
+dataset['filt']= y_filt
+
+hrw = 1  # 单侧窗口大小，作为采样频率的比例
+fs = 333  # 示例数据集以300Hz的频率录制
+
+# 计算了'filt'列的滚动均值
+mov_avg = dataset.filt.rolling(int(hrw * fs)).mean()
+
 
 
