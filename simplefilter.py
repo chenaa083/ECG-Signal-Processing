@@ -39,7 +39,7 @@ lead2_f = scipy.fftpack.fft(lead2)
 
 # 设置低通滤波器(50hz)和带阻滤波器(45,50),处理电源线干扰
 a, b = signal.butter(4, 50/(Fs/2), 'low')
-band_filt = np.array([45, 50])
+band_filt = np.array([45, 55])
 c, d = signal.butter(2, band_filt/(Fs/2), 'bandstop', analog=False)
 
 # 绘制频率响应曲线
