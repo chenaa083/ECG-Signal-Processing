@@ -10,8 +10,6 @@ dd.get_data('{}'.format(file_number))
 dataset = pd.read_csv(filename)
 column_names = dataset.columns[0:2].tolist()
 column_names = [name.strip("[]") for name in column_names]
-column_name1, column_name2 = column_names
-
 lead1 = [e for e in dataset[column_names[0]]]
 # 采样频率和周期
 Fs = 1000
@@ -22,7 +20,7 @@ a, b = signal.butter(4, 50/(Fs/2), 'low')
 band_filt = np.array([45, 55])
 c, d = signal.butter(2, band_filt/(Fs/2), 'bandstop', analog=False)
 # 通过滤波器
-tempf = signal.filtfilt(a,b, lead1[:5000])
+tempf = signal.filtfilt(a,b, lead1)
 tempf = signal.filtfilt(c,d, tempf)
 # 计算Kaiser窗口系数，消除基线漂移干扰
 # Fs 是采样率，nyq_rate 是Nyquist频率（Nyquist rate），表示采样率的一半。

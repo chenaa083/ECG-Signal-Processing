@@ -149,12 +149,12 @@ if __name__ == '__main__':
     # 绘制原始信号
     ax1.plot(x,lead1[:5000], color='r', linewidth=0.7)
     ax3.plot(xf, 2.0/sample * np.abs(lead1_f[:2500]), color='r', linewidth=0.7, label='raw')
-    ax3.set_ylim([0, 0.20])
+    ax3.set_ylim([0, 0.05])
     ax3.set_xlim([0, 200])
 
     # 绘制滤波后的输出
     ax4.plot(xf, 2.0/sample * np.abs(lead1_ff[:2500]), color='g', linewidth=0.7)
-    ax4.set_ylim([0, 0.20])  # 设置y轴的范围
+    ax4.set_ylim([0, 0.05])  # 设置y轴的范围
     ax4.set_xlim([0, 200])
     # 绘制滤波后的时域信号
     ax2.plot(x, y_filt, color='g', linewidth=0.7)
